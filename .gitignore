@@ -1,0 +1,4 @@
+node_modules/
+incidents.db
+.env
+uploads/
