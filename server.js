@@ -5,10 +5,10 @@ const cors = require('cors');
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = 'change_moi_en_prod_par_un_vrai_secret_long_et_aleatoire';
+const JWT_SECRET = process.env.JWT_SECRET;
 const multer = require('multer');
 const path = require('path');
 
@@ -267,6 +267,6 @@ app.post('/api/admin/users', authMiddleware, (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Serveur démarré sur http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Serveur démarré sur le port ${PORT}`);
 });
