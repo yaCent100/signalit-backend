@@ -1,4 +1,8 @@
 const db = require('./db'); // db est maintenant un "pool" pg
+const fs = require('fs');
+if (!fs.existsSync('uploads')) {
+    fs.mkdirSync('uploads');
+}
 const express = require('express');
 const app = express();
 const cors = require('cors');
