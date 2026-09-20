@@ -13,14 +13,15 @@ async function initDb() {
       email TEXT UNIQUE NOT NULL,
       password_hash TEXT NOT NULL,
       name TEXT NOT NULL,
-      is_admin BOOLEAN DEFAULT FALSE
+      is_admin BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS incidents (
+    CREATE TABLE IF NOT EXISTS findings (
       id SERIAL PRIMARY KEY,
-      user_id INTEGER NOT NULL REFERENCES users(id),
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       title TEXT NOT NULL,
       description TEXT,
       category TEXT NOT NULL,
@@ -28,24 +29,26 @@ async function initDb() {
       latitude DOUBLE PRECISION NOT NULL,
       longitude DOUBLE PRECISION NOT NULL,
       photo_path TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS comments (
       id SERIAL PRIMARY KEY,
-      incident_id INTEGER NOT NULL REFERENCES incidents(id),
-      user_id INTEGER NOT NULL REFERENCES users(id),
+      finding_id INTEGER NOT NULL REFERENCES findings(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       content TEXT NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Index pour accélérer les requêtes fréquentes
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_findings_user_id ON findings(user_id);`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_findings_category ON findings(category);`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_findings_status ON findings(status);`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_comments_finding_id ON comments(finding_id);`);
 }
 
-// On initialise la base au démarrage (à appeler une fois dans ton fichier principal, ex: server.js)
-initDb()
-  .then(() => console.log('✅ Tables Postgres prêtes'))
-  .catch((err) => console.error('❌ Erreur init DB:', err));
-
-module.exports = pool;
+module.exports = { pool, initDb };

@@ -1,4 +1,4 @@
-const db = require('./db');
+const db = require('./src/config/db');
 
 console.log('Type de db:', typeof db);
 console.log('db a une méthode query ?', typeof db.query);
